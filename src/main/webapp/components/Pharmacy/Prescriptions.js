@@ -6,17 +6,15 @@ import { Table } from 'reactstrap'
 import { makeStyles } from "@material-ui/core/styles";
 import { ToastContainer } from "react-toastify";
 import momentLocalizer from "react-widgets-moment";
-import VisibilityIcon from "@material-ui/icons/Visibility";
-import { TiArrowForward } from "react-icons/ti";
-import Tooltip from "@material-ui/core/Tooltip";
 import Moment from "moment";
-import PatientDetailCard from "./PatientDetailCard";
+import PatientDetailCard from 'components/PatientProfile/PatientDetailCard';
 import { Link } from "react-router-dom";
-import DispenseModal from './DispenseModal'
-import ViewModal from './ViewModal'
+//import DispenseModal from './DispenseModal'
+import DispenseModal from './DrugDispenseFormIo'
+import ViewModal from './ViewModalForm'
 import { Menu, MenuList, MenuButton, MenuItem } from "@reach/menu-button";
 import "@reach/menu-button/styles.css";
-
+import { Spinner } from 'reactstrap';
 import {
   Alert,
   Card,
@@ -24,30 +22,18 @@ import {
   CardHeader,
   Col,
   Row,
-  Button,
-  Form,
-  FormGroup,
-  Label,
-  Input,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  Dropdown,
-  DropdownToggle,
-  DropdownMenu,
-  DropdownItem,
 } from "reactstrap";
+import { useSelector, useDispatch } from 'react-redux';
+import {  fetchPatientPrescriptionsByEncounter } from './../../actions/pharmacy'
+import {authentication} from '../../_services/authentication';
 
+
+//
 Moment.locale("en");
 momentLocalizer();
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    width: "100%",
-  },
-  container: {
-    maxHeight: 440,
-  },
+
   card: {
     margin: theme.spacing(20),
     display: "flex",
@@ -77,37 +63,36 @@ const useStyles = makeStyles((theme) => ({
       margin: theme.spacing(1),
     },
   },
+
   input: {
     display: "none",
   },
 }));
 
 const Prescriptions = (props) => {
-
-  const getId = () => {
-    let Id
-    if (props.location.form) {
-      localStorage.setItem("Id", props.location.form.formDataObj.length);
-      Id = props.location.form.formDataObj.length;
-    } else {
-      Id = localStorage.getItem(Id);
-    }
-    console.log(Id)
-    return Id;
-    
-  }
-
+  const dispatch = useDispatch();
+  const prescriptionOrder = useSelector(state => state.pharmacy.list);
+ 
   useEffect(() => {
-    // console.log(props.location.form.formDataObj);
-    getId()
-  }, [])
+        
+    if(props.location.state.encounterId !="" ){         
+            setLoading(true);
+                const onSuccess = () => {
+                    setLoading(false) 
 
-
+                }
+                const onError = () => {
+                    setLoading(false)     
+                }
+        dispatch(fetchPatientPrescriptionsByEncounter(props.location.state.encounterId,onSuccess,onError ));
+    }
+}, [props.location.state.encounterId]); //componentDidMount 
   const classes = useStyles();
   const { buttonLabel, className } = props;
-
+  const [loading, setLoading] = useState('')
   const [modal, setModal] = useState(false);
   const [modal1, setModal1] = useState(false);
+  const [modalRegimen, setModalRegimen] = useState(false);
   const [drugDetails, setDrugDetails] = useState({})
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
@@ -116,6 +101,7 @@ const Prescriptions = (props) => {
   const toggle = (form) => {
     setDrugDetails({ ...drugDetails, ...form });
     setModal(!modal);
+    
   } 
   const toggle1 = (form) => {
     setDrugDetails({ ...drugDetails, ...form });
@@ -134,8 +120,8 @@ const Prescriptions = (props) => {
      </button>
    );
 
-
-  const formData = props.location.form ? props.location.form.formDataObj : null 
+  const formData = props.location.state ? prescriptionOrder : null 
+  console.log(formData)
 
  const Actions = (form) => {
    return (
@@ -152,7 +138,10 @@ const Prescriptions = (props) => {
        </MenuButton>
        <MenuList style={{ hover: "#eee" }}>
          {form.data.prescription_status === 0 ? (
-           <MenuItem onSelect={() => toggle(form)}>
+
+           <MenuItem onSelect={() => toggle(form)}
+                     hidden={!authentication.userHasRole(["pharmacy_write"])}
+           >
              <i
                className="fa fa-pencil"
                aria-hidden="true"
@@ -162,8 +151,10 @@ const Prescriptions = (props) => {
                &nbsp; {""} Dispense drugs
              </i>
            </MenuItem>
+
+        
          ) : (
-           <MenuItem onSelect={() => toggle(form)}>
+           <MenuItem onSelect={() => toggle(form)} hidden={!authentication.userHasRole(["pharmacy_write"])}>
              <i
                className="fa fa-pencil"
                aria-hidden="true"
@@ -174,28 +165,25 @@ const Prescriptions = (props) => {
              </i>
            </MenuItem>
          )}
-         <MenuItem onSelect={() => toggle1(form)}>
-           {/* <VisibilityIcon
-             size="10"
-             style={{ color: "#000", cursor: "pointer" }}
-           />{" "} */}
-           <i
-             className="fa fa-eye"
-             aria-hidden="true"
-             size="15"
-             style={{ cursor: "pointer", color: "#000" }}
-           >
-             &nbsp; {""}View details
-           </i>
-         </MenuItem>
+         {form.data.prescription_status !=0 ? (
+            <MenuItem onSelect={() => toggle1(form)}>
+              <i
+                className="fa fa-eye"
+                aria-hidden="true"
+                size="15"
+                style={{ cursor: "pointer", color: "#000" }}
+              >
+                &nbsp; {""}View details
+              </i>
+            </MenuItem>
+         )
+         :
+         ""
+      }
        </MenuList>
      </Menu>
    );
  };
-
-
-
-
   return (
     <Page title="Dispense Drugs">
       <ToastContainer autoClose={2000} />
@@ -204,19 +192,28 @@ const Prescriptions = (props) => {
           <div>
             {formData ? (
               <Fragment>
-                <PatientDetailCard getpatientdetails={props.location.form} />
+                {!loading ?
+                        <PatientDetailCard getpatientdetails={ props.location.state }/>  
+                    :
+                        <p> <Spinner color="primary" /> Loading Please Wait..</p>
+                    }
+                
                 <br />
                 <Card className="mb-12">
                   <CardHeader>
                     DRUG ORDER DETAILS
-                    <Link to="/pharmacy">
+                    <Link 
+                      to ={{ 
+                        pathname: "/pharmacy",  
+                        state: 'prescription'
+                      }}
+                    >
                       <MatButton
                         type="submit"
                         variant="contained"
                         color="primary"
                         className={classes.button}
-                        className=" float-right mr-1"
-                      >
+                        className=" float-right mr-1">
                         <TiArrowBack /> &nbsp; back
                       </MatButton>
                     </Link>
@@ -226,19 +223,8 @@ const Prescriptions = (props) => {
                     <Row>
                       <Col>
                         <Card body>
-                            <Table
-                              style={{
-                                fontWeight: "bolder",
-                                borderColor: "#000",
-                              }}
-                              responsive
-                            >
-                              <thead
-                                style={{
-                                  backgroundColor: "#9F9FA5",
-                                  color: "#000",
-                                }}
-                              >
+                            <Table striped responsive >
+                              <thead style={{backgroundColor: "#9F9FA5",color: "#000",}}>
                                 <tr>
                                   <th>Name</th>
                                   <th>Dosage</th>
@@ -247,20 +233,27 @@ const Prescriptions = (props) => {
                                   <th></th>
                                 </tr>
                               </thead>
-
-                              {formData.map((form) => (
-                                <tbody key={form.id}>
-                                  <tr>
+                              
+                              
+                                <tbody >
+                                {!loading ? formData.map((form) => (
+                                  form.data!==null?
+                                  <tr key={form.id}>
                                     <td>
-                                      <b>{form.data.generic_name}</b>
+                                      <b>{form.data && form.data.type!=0 ? form.data.drug.name :  form.data.regimen.name}</b>
                                     </td>
-                                    <td>{form.data.dosage}</td>
-                                    <td>{form.data.date_prescribed}</td>
-                                    <td>{form.data.date_dispensed}</td>
+                                    <td>{form.data.duration && form.data.duration ? form.data.duration : ''}</td>
+                                    <td>{Moment(form.data.date_prescribed).format("DD-MM-YYYY")}</td>
+                                    <td>{ Moment(form.data.date_dispensed).format("DD-MM-YYYY")}</td>
                                     <td>{Actions(form)}</td>
                                   </tr>
+                                  :
+                                   <tr></tr>
+                                  ))
+                                  :<p> <Spinner color="primary" /> Loading Please Wait</p>
+                                } 
                                 </tbody>
-                              ))}
+                               
                             </Table>
                             <br />
                         </Card>

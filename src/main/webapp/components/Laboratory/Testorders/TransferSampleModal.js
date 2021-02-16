@@ -61,10 +61,8 @@ const useStyles = makeStyles(theme => ({
 const ModalSampleTransfer = (props) => {
     const classes = useStyles()
     const datasample = props.datasample ? props.datasample : {};
-    //console.log(datasample)
     const lab_test_group = datasample.data ? datasample.data.lab_test_group : null ;
     const description = datasample.data ? datasample.data.description : null ;
-    console.log(lab_test_group)
     const labId = datasample.id
     const [loading, setLoading] = useState(false)
     const [visible, setVisible] = useState(true);
@@ -77,15 +75,14 @@ const ModalSampleTransfer = (props) => {
         async function getCharacters() {
             try {
                 const response = await axios(
-                    url + "sample-manifests/pcrlab"
+                    url + "organisation-units/organisation-unit-level/7"
                 );
-                const body = response.data;
+                const body = response.data && response.data !==null ? response.data : {};
                 
                 setOptionPcr(
                      body.map(({ name, id }) => ({ title: name, value: id }))
                  );
             } catch (error) {
-                console.log(error);
             }
         }
         getCharacters();
@@ -93,7 +90,6 @@ const ModalSampleTransfer = (props) => {
 
     const handleOtherFieldInputChange = e => {
         setOtherFields ({ ...otherfields, [e.target.name]: e.target.value });
-        console.log(otherfields)
     }
 
 
@@ -108,7 +104,6 @@ const ModalSampleTransfer = (props) => {
         setErrors({
             ...temp
         })
-            console.log(temp)
             return Object.values(temp).every(x => x == "")
     }
 
@@ -153,26 +148,25 @@ const ModalSampleTransfer = (props) => {
           <Form onSubmit={saveSample}>
             <ModalHeader toggle={props.togglestatus}>Transfer Sample</ModalHeader>
                 <ModalBody>
-                    {checklanumber(props.labnumber['lab_number'])}
+                    {/* {checklanumber(props.labnumber['lab_number']!==null ? props.labnumber['lab_number'] : null)} */}
                         <Card >
                             <CardBody>
                                 <Row >
                                     <Col md={12} >
                                         <Alert color="dark" style={{backgroundColor:'#9F9FA5', color:"#000" , fontWeight: 'bolder', fontSize:'14px'}}>
                                             <p style={{marginTop: '.7rem' }}>Lab Test Group : <span style={{ fontWeight: 'bolder'}}> {' '} {lab_test_group}</span> 
-                                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Lab Test Ordered : 
+                                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Lab Test Ordered : 
                                                 <span style={{ fontWeight: 'bolder'}}>{' '}  {description}</span>
-                                                    &nbsp;&nbsp;&nbsp; Lab Number : &nbsp;&nbsp;
-                                                <span style={{ fontWeight: 'bolder'}}>{props.labnumber['lab_number']===""?" ---":props.labnumber['lab_number']}</span>
-                                                    Order by : &nbsp;&nbsp;
+                                                    &nbsp;&nbsp; Lab Number : &nbsp;&nbsp;
+                                                <span style={{ fontWeight: 'bolder'}}>{props.labnumber===""?" ---":props.labnumber}</span>
+                                                &nbsp;&nbsp; Order by : &nbsp;&nbsp;
                                                 <span style={{ fontWeight: 'bolder'}}>{ "Debora"}</span>
-                                                    &nbsp;&nbsp;&nbsp; Priority : &nbsp;&nbsp;
+                                                    &nbsp;&nbsp; Priority : &nbsp;&nbsp;
                                                 <span style={{ fontWeight: 'bolder'}}>{ "Normal"}</span>
                                             </p>        
                                         </Alert>
                                     </Col>
                                     <Col md={6}>
-                                        {/* <p>Sample Type {datasample.data.description}  </p> */}
                                           <FormGroup>
                                               <Label for='maritalStatus'>Date Transfer</Label>
                                           
@@ -266,18 +260,7 @@ const ModalSampleTransfer = (props) => {
                                       <br/>
                                       {loading ? <Spinner /> : ""}
                                       <br/>
-                                      {props.labnumber['lab_number']!==""?
-                                          <MatButton
-                                              type='submit'
-                                              variant='contained'
-                                              color='primary'
-                                              className={classes.button}
-                                              startIcon={<SaveIcon />}
-                                              disabled={loading}
-                                          >   
-                                              Save
-                                          </MatButton>
-                                              :
+                                      
                                           <MatButton
                                               type='submit'
                                               variant='contained'
@@ -289,7 +272,7 @@ const ModalSampleTransfer = (props) => {
                                               Save
                                           </MatButton>
                                           
-                                      }
+                                      
                                           <MatButton
                                               variant='contained'
                                               color='default'

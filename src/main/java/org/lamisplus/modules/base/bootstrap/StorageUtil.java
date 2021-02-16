@@ -20,6 +20,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+
 
 @Service
 @Slf4j
@@ -34,22 +37,20 @@ public class StorageUtil {
         return this.rootLocation = path;
     }
 
-    public URL store(MultipartFile file, Boolean overrideExistFile, String fileNewName) {
-        String filename;
-        URL filePath;
-        if(fileNewName != null || !fileNewName.isEmpty()){
-            filename = fileNewName;
-        } else {
-            filename = StringUtils.cleanPath(file.getOriginalFilename().trim());
+    public Path store(String module, MultipartFile file, String newName) {
+        Path filePath;
+        InputStream inputStream = null;
+        module = module.toLowerCase().trim();
+        String filename = StringUtils.cleanPath(file.getOriginalFilename().trim());
+        if(newName != null){
+            filename = newName;
         }
-        System.out.println("file name is " + filename);
 
-        //TODO: check...
         try {
 
-            if((overrideExistFile != null && overrideExistFile == true) && Files.exists(rootLocation.resolve(filename))){
+            if(Files.exists(rootLocation.resolve(module))){
                 try {
-                    Files.delete(rootLocation.resolve(filename));
+                    Files.delete(rootLocation.resolve(module));
                 }catch (NullPointerException npe){
                     throw new EntityNotFoundException(Module.class, filename, "not found");
                 }
@@ -62,13 +63,20 @@ public class StorageUtil {
                 throw new RuntimeException("Cannot store file with relative path outside current directory " + filename);
             }
 
-            InputStream inputStream = file.getInputStream();
-            filePath = this.rootLocation.resolve(filename).toUri().toURL();
+            filePath = this.rootLocation.resolve(filename).toFile().toPath();
+            inputStream = file.getInputStream();
             FileUtils.copyInputStreamToFile(inputStream, this.rootLocation.resolve(filename).toFile());
+            inputStream.close();
 
         } catch (Exception e) {
-            //e.printStackTrace();
+            e.printStackTrace();
             throw new RuntimeException("Failed to store file " + filename, e);
+        } finally {
+            try {
+                if (inputStream != null){inputStream.close();}
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         return filePath;
     }

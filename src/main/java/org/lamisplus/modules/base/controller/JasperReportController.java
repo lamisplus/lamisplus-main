@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import net.sf.jasperreports.engine.JRException;
+import org.audit4j.core.annotation.Audit;
+import org.lamisplus.modules.base.domain.dto.DataSourceDTO;
 import org.lamisplus.modules.base.domain.dto.HeaderUtil;
 import org.lamisplus.modules.base.domain.dto.JasperReportInfoDTO;
 import org.lamisplus.modules.base.domain.entity.JasperReportInfo;
@@ -21,12 +23,14 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
+import java.sql.SQLException;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/jasper-reports")
 @Slf4j
 @RequiredArgsConstructor
+@Audit
 public class JasperReportController {
     private final JasperReportService jasperReportService;
     private static final String ENTITY_NAME = "JasperReport";
@@ -64,7 +68,7 @@ public class JasperReportController {
     }
 
     @PostMapping("/generate")
-    public HttpEntity<byte[]> generateReport(@RequestBody ReportDetailDTO data, HttpServletResponse response) throws IOException, JRException, URISyntaxException {
+    public HttpEntity<byte[]> generateReport(@RequestBody ReportDetailDTO data, HttpServletResponse response) throws IOException, JRException, URISyntaxException, SQLException {
         File file = this.jasperReportService.generateReport(data);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
@@ -79,4 +83,3 @@ public class JasperReportController {
     }
 
 }
-

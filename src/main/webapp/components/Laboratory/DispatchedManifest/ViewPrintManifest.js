@@ -15,6 +15,7 @@ import { Spinner } from 'reactstrap';
 import { Badge } from 'reactstrap';
 import { Link } from 'react-router-dom';
 import AddSample from "./AddSample";
+import {authentication} from '../../../_services/authentication';
 
 
 
@@ -41,8 +42,7 @@ const useStyles = makeStyles({
 
     const classes = useStyles()
 
-    useEffect(() => {
-        
+    useEffect(() => {        
         if(manifestId){         
                 setLoading(true);
                     const onSuccess = () => {
@@ -57,7 +57,6 @@ const useStyles = makeStyles({
         }
     }, []); //componentDidMount 
 
-   console.log(sampleManifestList)
     //This is function to check for the status of each collection to display on the tablist below 
     const sampleStatus = e =>{
          if(e===null || e===""){
@@ -122,10 +121,11 @@ return (
                         <Row>
                           <Col sm={12} className=" float-right mr-1">
                             <Link
-                                to={{
-                                  pathname: "/print-dispatched-manifest",
-                                  ManifestDetail: {samplesDispatched}
-                                }}
+                                // to={{
+                                //   pathname: "/print-dispatched-manifest",
+                                //   ManifestDetail: {samplesDispatched}
+                                // }}
+                                to ={"/print-dispatched-manifest?maniFest="+manifestId}
                             >
                               <MatButton
                                 type='submit'
@@ -147,6 +147,7 @@ return (
                                   color="primary"         
                                   className=" float-right mr-1"
                                   onClick={() => AddSampleToManifest(samplesDispatched)}
+                                  disabled={!authentication.userHasRole(["laboratory_write"])}
                               >
                                 <TiPlusOutline/>{" "} Add Sample
                             </MatButton>
@@ -169,7 +170,7 @@ return (
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                
+                                                {console.log(sampleManifestList)}
                                                 {!loading ? sampleManifestList.map((row) => (
                                                     row!==null?
                                                     <tr key={row.id} style={{ borderBottomColor: '#fff' }}>

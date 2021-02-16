@@ -53,8 +53,6 @@ function AdminSubMenu(props) {
     },
   ];
 
-
-
   const displayFormByFormName = (formName) => {
     setCurrentForm(formInfo.find((x) => x.formName === formName));
     setShowFormModal(true);
@@ -77,19 +75,33 @@ function AdminSubMenu(props) {
           <Dropdown text="System Configurations"   labeled simple    className='icon link item'>
               <Dropdown.Menu>
                 <Dropdown.Item>
-                  <Link to={{pathname: "/admin/application-codesets"}} >
+{/*<<<<<<< HEAD*/}
+{/*                  <Link to={{pathname: "/admin/application-codesets"}} >Application Codeset Manager</Link>*/}
+{/*                </Dropdown.Item>*/}
+{/*                <Dropdown.Item>*/}
+{/*                  <Link to={{pathname: "/admin/global-variable"}}>Global Variables</Link>*/}
+{/*=======*/}
+                  <Link to={{pathname: "/admin-application-codesets"}} >
                  Application Codeset Manager
                   </Link>
                 </Dropdown.Item>
                 <Dropdown.Item>
                   <Link
                       to={{
-                        pathname: "/admin/global-variable"}}
+                        pathname: "/admin-global-variable"}}
                   >
                   Global Variables
                   </Link>
+
                 </Dropdown.Item>
                 <Dropdown.Item >
+                  <Link to={{pathname: "/admin/standards"}}>International Standard setup</Link>
+                </Dropdown.Item>
+                {/*<Dropdown.Item >*/}
+                {/*  <Link to={{pathname: "/organization-unit"}}>Organization Unit setup</Link>*/}
+                {/*</Dropdown.Item>*/}
+
+              {/*   <Dropdown.Item >
                   <Link
                       to={{
                         pathname: "/admin/standards"}}
@@ -98,51 +110,36 @@ function AdminSubMenu(props) {
                   </Link>
                 </Dropdown.Item>
                 <Dropdown.Item >
-                  Organization Unit setup
-                </Dropdown.Item>
-                <Dropdown.Item >
                   <Link
                       to={{
-                        pathname: "/admin/wards"}}
+                        pathname: "/organization-unit"}}
                   >
+                  Organization Unit setup
+                  </Link>
+                </Dropdown.Item>*/}
+
+                <Dropdown.Item >
+{/*<<<<<<< HEAD*/}
+{/*                  <Link to={{pathname: "/admin/wards"}}>Ward Manager</Link>*/}
+{/*                </Dropdown.Item>*/}
+{/*              </Dropdown.Menu>*/}
+{/*          </Dropdown>*/}
+{/*        <Menu.Item>  <Link to={{pathname: "/admin/bootstrap-configuration"}} >Bootstrap Configuration </Link></Menu.Item>*/}
+{/*        <Menu.Item>  <Link to={{pathname: "/admin/organization-unit"}} >Organization Unit </Link></Menu.Item>*/}
+{/*        <Menu.Item>  <Link to={{pathname: "/admin/program-manager-home"}} >Program Setup </Link></Menu.Item>*/}
+{/*=======*/}
+                  <Link to={{
+                        pathname: "/admin-wards"}}>
                     Ward Manager
                   </Link>
                 </Dropdown.Item>
-
               </Dropdown.Menu>
-
           </Dropdown>
-
-        <Dropdown text="Designer" className='link item' simple>
-          <Dropdown.Menu>
-            <Dropdown.Header>Form Designer</Dropdown.Header>
-            <Dropdown.Item>New Form</Dropdown.Item>
-            <Dropdown.Item>View All Forms</Dropdown.Item>
-            {/*<Dropdown.Item>*/}
-            {/*  <Dropdown text='New Form Designer'>*/}
-            {/*    <Dropdown.Menu>*/}
-            {/*      <Dropdown.Header>Mens</Dropdown.Header>*/}
-            {/*      <Dropdown.Item>Shirts</Dropdown.Item>*/}
-            {/*      <Dropdown.Item>Pants</Dropdown.Item>*/}
-            {/*      <Dropdown.Item>Jeans</Dropdown.Item>*/}
-            {/*      <Dropdown.Item>Shoes</Dropdown.Item>*/}
-            {/*      <Dropdown.Divider />*/}
-            {/*      <Dropdown.Header>Womens</Dropdown.Header>*/}
-            {/*      <Dropdown.Item>Dresses</Dropdown.Item>*/}
-            {/*      <Dropdown.Item>Shoes</Dropdown.Item>*/}
-            {/*      <Dropdown.Item>Bags</Dropdown.Item>*/}
-            {/*    </Dropdown.Menu>*/}
-            {/*  </Dropdown>*/}
-            {/*</Dropdown.Item>*/}
-            <Dropdown.Divider />
-            <Dropdown.Header>Report Designer</Dropdown.Header>
-            <Dropdown.Item>New Report</Dropdown.Item>
-            <Dropdown.Item>View All Reports</Dropdown.Item>
-          </Dropdown.Menu>
-        </Dropdown>
-
+        <Menu.Item>  <Link to={{pathname: "/admin-bootstrap-configuration"}} >Bootstrap Configuration </Link></Menu.Item>
+        <Menu.Item>  <Link to={{pathname: "/admin-organization-unit"}} >Organization Unit </Link></Menu.Item>
+        {/*<Menu.Item>  <Link to={{pathname: "/case-managers"}} >Case Management </Link></Menu.Item>*/}
+        <Menu.Item>  <Link to={{pathname: "/admin/program-manager-home"}} >Program Setup </Link></Menu.Item>
       </Menu>
-
       <ToastContainer />
     </React.Fragment>
   );
@@ -161,7 +158,4 @@ const mapActionToProps = {
   fetchApplicationCodeSet: fetchApplicationCodeSet,
 };
 
-export default connect(
-  mapStateToProps,
-  mapActionToProps
-)(AdminSubMenu);
+export default connect(mapStateToProps, mapActionToProps)(AdminSubMenu);

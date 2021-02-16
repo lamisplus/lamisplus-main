@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.lamisplus.modules.base.controller.apierror.EntityNotFoundException;
 import org.lamisplus.modules.base.controller.apierror.RecordExistException;
 import org.lamisplus.modules.base.domain.entity.LabTest;
-import org.lamisplus.modules.base.repository.LabTestGroupRepository;
 import org.lamisplus.modules.base.repository.LabTestRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +18,7 @@ import java.util.Optional;
 @Slf4j
 @RequiredArgsConstructor
 public class LabTestService {
+    public static final int ARCHIVED = 1;
     private final LabTestRepository labTestRepository;
     private final UserService userService;
 
@@ -29,7 +29,6 @@ public class LabTestService {
     public LabTest save(LabTest labTest) {
         Optional<LabTest> labTestOptional = labTestRepository.findById(labTest.getId());
         if (labTestOptional.isPresent()) throw new RecordExistException(LabTest.class, "Id", labTest.getId() + "");
-        labTest.setCreatedBy(userService.getUserWithAuthorities().get().getUserName());
         return labTestRepository.save(labTest);
     }
 
@@ -43,15 +42,13 @@ public class LabTestService {
         Optional<LabTest> labTestOptional = labTestRepository.findById(id);
         if(!labTestOptional.isPresent() || labTestOptional.get().getArchived() == 1)throw new EntityNotFoundException(LabTest.class, "Id", id +"");
         labTest.setId(id);
-        labTest.setModifiedBy(userService.getUserWithAuthorities().get().getUserName());
         return labTestRepository.save(labTest);
     }
 
     public Integer delete(Long id) {
         Optional<LabTest> labTestOptional = labTestRepository.findById(id);
         if(!labTestOptional.isPresent() || labTestOptional.get().getArchived() == 1)throw new EntityNotFoundException(LabTest.class, "Id", id +"");
-        labTestOptional.get().setArchived(1);
-        labTestOptional.get().setModifiedBy(userService.getUserWithAuthorities().get().getUserName());
+        labTestOptional.get().setArchived(ARCHIVED);
 
         return labTestOptional.get().getArchived();
     }

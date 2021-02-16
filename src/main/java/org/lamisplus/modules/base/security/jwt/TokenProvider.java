@@ -3,6 +3,9 @@ package org.lamisplus.modules.base.security.jwt;
 import io.jsonwebtoken.*;
 //import io.jsonwebtoken.io.Decoders;
 //import io.jsonwebtoken.security.Keys;
+import org.lamisplus.modules.base.domain.entity.Permission;
+import org.lamisplus.modules.base.domain.entity.Role;
+import org.lamisplus.modules.base.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -16,9 +19,7 @@ import org.springframework.util.StringUtils;
 import javax.annotation.PostConstruct;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -54,8 +55,8 @@ public class TokenProvider {
         this.tokenValidityInMillisecondsForRememberMe = 1000*60*60*100;
     }
 
-    public String createToken(Authentication authentication, boolean rememberMe) {
-        String authorities = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.joining(","));
+    public String createToken(Authentication authentication, UserService userService, boolean rememberMe) {
+        //String authorities = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.joining(","));
 
         long now = (new Date()).getTime();
         Date validity;
@@ -64,11 +65,19 @@ public class TokenProvider {
         } else {
             validity = new Date(now + this.tokenValidityInMilliseconds);
         }
+        org.lamisplus.modules.base.domain.entity.User user = userService.getUserWithRoles().get();
+        //getting & adding user details to token
+        String name = user.getPerson().getFirstName() + " " +
+                userService.getUserWithRoles().get().getPerson().getLastName();
+
+        String authorities = user.getRole().stream().map(Role::getName).collect(Collectors.joining(","));
 
         return Jwts
                 .builder()
                 .setSubject(authentication.getName())
                 .claim(AUTHORITIES_KEY, authorities)
+                .claim("name", name)
+                //.claim("role", role)
                 .signWith(SignatureAlgorithm.HS512, secret)
                 .setExpiration(validity)
                 .compact();

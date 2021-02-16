@@ -15,10 +15,14 @@ public interface PatientRepository extends JpaRepository<Patient, Long> , JpaSpe
 /*    @Query("select p from Person p where lower(p.firstName) like lower(concat('%', :search, '%')) " +
             "or lower(p.lastName) like lower(concat('%', :search, '%'))")
     List<Person> findByFirstNameLastName(String search);*/
-    Optional<Patient> findByHospitalNumber(String number);
+    Optional<Patient> findByHospitalNumberAndOrganisationUnitIdAndArchived(String number, Long OrganisationUnitId, int archived);
     //Optional<Patient> findByPersonId(Long PersonId);
     Optional<Patient> findById(Long patientId);
 
 
     Boolean existsByHospitalNumber(String patientNumber);
+
+    Long countByOrganisationUnitIdAndArchived(Long organisationUnitId, int archived);
+
+    Optional<Patient> findByIdAndArchivedAndOrganisationUnitId(Long id, int archived, Long organisationUnitId);
 }

@@ -76,8 +76,6 @@ const useStyles = makeStyles(theme => ({
 }));
 
 
-
-
 const PatientRegistration = props => {
     if(props.location.currentId){
         const intialRelativesValues = props.location.currentId.personRelativeDTOs !== null ? props.location.currentId.personRelativeDTOs : []
@@ -288,11 +286,22 @@ const PatientRegistration = props => {
   const onRelativeChange = e => {
       setRelative({ ...relative, [e.target.name]: e.target.value });
   };
+  function age(birthday)
+  {
+      birthday = new Date(birthday);
+      return  new Number((new Date().getTime() - birthday.getTime()) / 31536000000).toFixed(0);
+  }    
+  const handleDOb = dateSelected => {
+    setValues({ ...values, dob: moment(dateSelected).format("DD-MM-YYYY")  })
+    const currentDate  = moment(new Date()).format("DD-MM-YYYY");
+    const selectedDob = moment(dateSelected).format("YYYY-MM-DD")
+    document.getElementById("age").value = age(selectedDob);
+}
+
 /****
  *  Validation 
  */
 const validate = () => {
-    console.log(values)
     let temp = { ...errors }
     temp.firstName = values.firstName ? "" : "First Name is required"
     temp.hospitalNumber = values.hospitalNumber ? "" : "Patient Id is required."
@@ -311,16 +320,10 @@ const validate = () => {
     */
     const handleSubmit = e => {
         e.preventDefault();
-          
             if(validate()){
-                console.log(relatives)
-                console.log(relative)
                 const newRegistrationDate = moment(values.dateRegistration).format("DD-MM-YYYY");
                 const newDateOfBirth = moment(values.dob).format("DD-MM-YYYY");
-                //values["dateRegistration"] = newRegistrationDate;
                 values["personRelativeDTOs"] = relatives;
-                //values["dob"] = newDateOfBirth;
-                
                 setSaving(true);
                     const onSuccess = () => {
                         setSaving(false);
@@ -372,7 +375,6 @@ const validate = () => {
                                                             type="text"
                                                             name="hospitalNumber"
                                                             id="hospitalNumber"
-                                                            
                                                             value={values.hospitalNumber}
                                                             onChange={handleInputChange}
                                                             {...(errors.hospitalNumber && { invalid: true})}
@@ -527,9 +529,7 @@ const validate = () => {
                                                                 name="dob"
                                                                 dropUp
                                                                 value={values.regDate}
-                                                                onChange={value1 =>
-                                                                    setValues({ ...values, dob: moment(value1).format("DD-MM-YYYY")  })
-                                                                }
+                                                                onChange ={value1 => handleDOb(value1)}
                                                                 defaultValue={new Date(moment(values.dob, "DD-MM-YYYY").format("MM/DD/YYYY") )}
                                                                 max={new Date()}
                                                                 {...(errors.dob && { invalid: true})}
@@ -600,7 +600,6 @@ const validate = () => {
                                                                                 type="text"
                                                                                 name="mobilePhoneNumber"
                                                                                 id="mobilePhoneNumber"
-                                                                              
                                                                                 value={values.mobilePhoneNumber}
                                                                                 onChange={handleInputChange}
                                                                                 
@@ -615,7 +614,6 @@ const validate = () => {
                                                                                 type="text"
                                                                                 name="alternatePhoneNumber"
                                                                                 id="alternatePhoneNumber"
-                                                                              
                                                                                 value={values.alternatePhoneNumber}
                                                                                 onChange={handleInputChange}
                                                                             />
@@ -628,7 +626,6 @@ const validate = () => {
                                                                                 type="email"
                                                                                 name="email"
                                                                                 id="email"
-                                                                              
                                                                                 value={values.email}
                                                                                 onChange={handleInputChange}
                                                                             />
@@ -644,8 +641,7 @@ const validate = () => {
                                                                                 name="countryId"
                                                                                 id="countryId"
                                                                                 value={values.countryId}
-                                                                                onChange={getStates}
-                                                                            >
+                                                                                onChange={getStates}>
                                                                                 {countries.map(({ label, value }) => (
                                                                                     <option key={value} value={value}>
                                                                                         {label}
@@ -662,10 +658,8 @@ const validate = () => {
                                                                                 type="select"
                                                                                 name="stateId"
                                                                                 id="stateId"
-                                                                                
                                                                                 value={values.stateId}
-                                                                                onChange={getProvinces}
-                                                                            >
+                                                                                onChange={getProvinces}>
                                                                                 {states.map(({ label, value }) => (
                                                                                     <option key={value} value={value}>
                                                                                       {label}
@@ -980,7 +974,6 @@ function RelativeList({
           <ListItemText
               primary={
                   <React.Fragment>
-                    {console.log(relationshipTypeName)}
                     {relationshipTypeName}, {relative.firstName} {relative.otherNames}{" "}
                     {relative.lastName}
                   </React.Fragment>

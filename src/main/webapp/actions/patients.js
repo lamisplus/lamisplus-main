@@ -79,7 +79,6 @@ export const create = (data,onSuccess, onError) => dispatch => {
   axios
     .post(`${baseUrl}patients/`, data)
     .then(response => {
-
       dispatch({
         type: ACTION_TYPES.PATIENTS_CREATE,
         payload: response.data
@@ -99,8 +98,6 @@ export const create = (data,onSuccess, onError) => dispatch => {
         //toast.error(error.response.data.apierror.message);
         toast.error("Something went wrong. Please try again...");
       }
-       
-       //console.log(error.response.data.apierror.message);
     });
 };
 
@@ -194,7 +191,7 @@ export const fetchPatientAllergies = (id, onSuccess, onError) => dispatch => {
 
 export const fetchPatientLatestVitalSigns = (id, onSuccess, onError) => dispatch => {
   axios
-    .get(`${baseUrl}patients/${id}/encounters/${CODES.VITAL_SIGNS_FORM}`, {limit: 1, sortField: "dateEncounter", sortOrder: "desc"} )
+    .get(`${baseUrl}patients/${id}/encounters/${CODES.VITAL_SIGNS_FORM}?limit=1&sortField=id&sortOrder=desc` )
     .then(response => {
       if(onSuccess){
         onSuccess();
@@ -244,7 +241,7 @@ export const fetchPatientVitalSigns = (id, onSuccess, onError) => dispatch => {
  export const fetchPatientTestOrders = (id, onSuccess, onError) => dispatch => {
   if(id){
    axios
-     .get(`${baseUrl}patients/${id}/encounters/${CODES.LAB_TEST_ORDER_FORM}`, {limit: 5, sortField: "dateEncounter", sortOrder: "desc"})
+     .get(`${baseUrl}patients/${id}/encounters/${CODES.LAB_TEST_ORDER_FORM}`, {limit: 5, sortField: "id", sortOrder: "desc"})
      .then(response => {
        dispatch({
          type: ACTION_TYPES.PATIENT_LAB_ORDERS,
@@ -269,7 +266,7 @@ export const fetchPatientVitalSigns = (id, onSuccess, onError) => dispatch => {
  export const fetchPatientLatestMedicationOrder = (id, onSuccess, onError) => dispatch => {
   if(id){
    axios
-     .get(`${baseUrl}patients/${id}/encounters/${CODES.DRUG_PRESCRIPTION_FORM}`, {limit: 5, sortField: "dateEncounter", sortOrder: "desc"} )
+     .get(`${baseUrl}patients/${id}/encounters/${CODES.DRUG_PRESCRIPTION_FORM}`, {limit: 5, sortField: "id", sortOrder: "desc"} )
      .then(response => {
       onSuccess && onSuccess() ;
        dispatch({
@@ -290,27 +287,30 @@ export const fetchPatientVitalSigns = (id, onSuccess, onError) => dispatch => {
  }
 
  export const fetchByHospitalNumber = (id, onSuccess, onError) => dispatch => {
-  axios
-    .get(`${baseUrl}patients/${id}`)
-    .then(response => {
-      dispatch({
-        type: ACTION_TYPES.PATIENTS_FETCH_BY_ID,
-        payload: response.data
-      });
-      if(onSuccess){
-      onSuccess();
-      }
-    })
-    .catch(error => {
-      dispatch({
-        type: ACTION_TYPES.PATIENTS_ERROR,
-        payload: "Something went wrong, please try again"
-      })
-      if(onError){
-      onError();
-      }
+    console.log(id);
+    if(id) {
+        axios
+            .get(`${baseUrl}patients/${id}`)
+            .then(response => {
+                dispatch({
+                    type: ACTION_TYPES.PATIENTS_FETCH_BY_ID,
+                    payload: response.data
+                });
+                if (onSuccess) {
+                    onSuccess();
+                }
+            })
+            .catch(error => {
+                    dispatch({
+                        type: ACTION_TYPES.PATIENTS_ERROR,
+                        payload: "Something went wrong, please try again"
+                    })
+                    if (onError) {
+                        onError();
+                    }
+                }
+            );
     }
-    );
 };
  
 export const fetchPatientEncounterProgramCodeExclusionList = (id, onSuccess, onError) => dispatch => {
@@ -423,6 +423,7 @@ export const fetchPatientConsultationHistory = (id, onSuccess, onError) => dispa
      }  
  }
 
+
 export const fetchPatientAppointments = (id, onSuccess, onError) => dispatch => {
     axios
         .get(`${baseUrl}patients/${id}/encounters/${CODES.APPOINTMENT_FORM}/`)
@@ -451,7 +452,7 @@ export const fetchPatientAppointments = (id, onSuccess, onError) => dispatch => 
 export const fetchPatientRadiologyTestOrder = (id, onSuccess, onError) => dispatch => {
     if(id){
         axios
-            .get(`${baseUrl}patients/${id}/encounters/${CODES.RADIOLOGY_TEST_ORDER}`, {limit: 5, sortField: "dateEncounter", sortOrder: "desc"})
+            .get(`${baseUrl}patients/${id}/encounters/${CODES.RADIOLOGY_TEST_ORDER}`, {limit: 5, sortField: "id", sortOrder: "desc"})
             .then(response => {
                 dispatch({
                     type: ACTION_TYPES.PATIENT_RADIOLOGY_ORDERS,
@@ -473,3 +474,5 @@ export const fetchPatientRadiologyTestOrder = (id, onSuccess, onError) => dispat
             )
     }
 }
+
+

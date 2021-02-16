@@ -7,7 +7,7 @@ import LaboratoryDashBoard from "./LaboratoryDashBoard";
 import LabTestOrders from "./Testorders/LabTestOrderSearch";
 import LabTestResultSearch from './TestResult/LabTestResultSearch';
 import LabTestVerifySampleSearch from './Sampleverifications/LabTestVerifySampleSearch';
-import DispatchedManifest from './DispatchedManifest/DispatchedManifest';
+import DispatchedManifestList from './DispatchedManifest/DispatchedManifest';
 import Typography from "@material-ui/core/Typography";
 import { MdDashboard , MdFileUpload} from "react-icons/md";
 import { GiTestTubes,GiFiles, GiDrippingTube } from "react-icons/gi";
@@ -66,14 +66,20 @@ function a11yProps(index) {
 function HomePage(props) {
   const classes = useStyles();
   const [value, setValue] = useState(null);
-  const urlIndex = getQueryParams("tab", props.location.search) || "0";
+  const urlIndex = getQueryParams("tab", props.location.search); 
+  const urlTabs = urlIndex !== null ? urlIndex : props.location.state ;
   useEffect ( () => {
-    switch(urlIndex){
-      case "radiology": return setValue(4)
-      case "lab_test_result": return setValue(3)
+    switch(urlTabs){  
+      case "collect-sample": return setValue(1)
+      case "sample-verification": return setValue(2)
+      case "test-result": return setValue(3)
+      // case "radiology": return setValue(4)
+      case "dispatched-sample-list" : return setValue(4)
+
       default: return setValue(0)
     }
   }, [urlIndex]);
+  
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
@@ -95,8 +101,8 @@ function HomePage(props) {
           <Tab className={classes.title} label="Sample Collection" icon={<GiTestTubes />} {...a11yProps(1)} />
           <Tab className={classes.title} label="Sample Verification " icon={<GiDrippingTube style={{ color:'#fff'}}/>} {...a11yProps(2)} />
           <Tab className={classes.title} label="Results Reporting" icon={<GoRepoClone />} {...a11yProps(3)} />
-          <Tab className={classes.title} label="Radiology Uploads" icon={<MdFileUpload />} {...a11yProps(4)} />
-          <Tab className={classes.title} label="Sample Dispatch " icon={<GiFiles />} {...a11yProps(5)} />
+          {/* <Tab className={classes.title} label="Radiology Uploads" icon={<MdFileUpload />} {...a11yProps(4)} /> */}
+          <Tab className={classes.title} label="Sample Dispatch " icon={<GiFiles />} {...a11yProps(4)} />
       </Tabs>
       </AppBar>
 
@@ -112,11 +118,11 @@ function HomePage(props) {
       <TabPanel value={value} index={3}>
           <LabTestResultSearch />
       </TabPanel>
-      <TabPanel value={value} index={4}>
+      {/* <TabPanel value={value} index={4}>
           <RadiologyTestSearch />
-      </TabPanel>
-      <TabPanel value={value} index={5}>
-        <DispatchedManifest />
+      </TabPanel> */}
+      <TabPanel value={value} index={4}>
+        <DispatchedManifestList />
       </TabPanel>
         
      </div> 
